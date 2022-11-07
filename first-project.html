@@ -13,8 +13,13 @@
     
     <div class="project">
         <div class="container">
-            <h1 class="project-header">Проект по детекции и распознаванию образов.</h1>
+            <h1 class="project-header">Проект по распознования класса картинки.</h1>
+            <h3>В этом проекте я реализовал на сайте форму отправки запроса на сервер для предсказания
+                класса картинки. Модель выбрана Vit. Серверная часть размещена на HuggingFace Spaces.</h3>
+            <p>Для демонстрации работы проекта выберите файл с картинкой:</p>    
             <div class="project-img">
+                <input id="photo" type="file">
+                <div id="results"></div>
                 <img src="" alt="">
             </div>
             <a href="index.html" class="footer-btn-back">Вернуться на главную</a> <!-- При инференсе переписать адрес ссылки -->
@@ -57,6 +62,22 @@
             </div>
         </div>
     </div>
-
+    <script>
+        async function loaded(reader) {
+          const response = await fetch('https://skorp321-eduspace.hf.space/api/predict', {
+            method: "POST", body: JSON.stringify({ "data": [reader.result] }),
+            headers: { "Content-Type": "application/json" }
+          });
+          const json = await response.json();
+          const label = json['data'][0]/*['confidences'][0]*/['label'];
+          results.innerHTML = `<br/><img src="${reader.result}" width="300"> <p>${label}</p>`
+        }
+        function read() {
+          const reader = new FileReader();
+          reader.addEventListener('load', () => loaded(reader))
+          reader.readAsDataURL(photo.files[0]);
+        }
+        photo.addEventListener('input', read);
+      </script>
 </body>
 </html>
